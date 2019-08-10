@@ -7,12 +7,22 @@ const app = express();
 
 const kafka = new Kafka({
     clientId: 'api',
-    brokers: ['kafka:9092'],
+    brokers: ['localhost:9092'],
+    retry: {
+        initialRetryTime: 300,
+        retries: 10,
+    },
+});
+
+const producer = kafka.producer();
+
+app.use((req, res, next) => {
+    req.producer = producer;
+
+    return next()
 });
 
 app.use(routes);
-
-const producer = kafka.producer();
 
 const run = async () => {
     await producer.connect();
