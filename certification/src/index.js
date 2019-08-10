@@ -7,6 +7,7 @@ const kafka = new Kafka({
 
 const topic = 'issue-certificate';
 const consumer = kafka.consumer({ groupId: 'certificate-group' });
+const producer = kafka.producer();
 
 const run = async () => {
     await consumer.connect();
@@ -14,7 +15,22 @@ const run = async () => {
     await consumer.run({
         eachMessage: async ({ topic, partition, message }) => {
             const prefix = `${topic}[${partition} | ${message.offset}] / ${message.timestamp}`;
-            console.log(`- ${topic} ${message.key}#${message.value}`);
+            console.log(`- ${prefix} ${message.key}#${message.value}`);
+
+            const payload = JSON.parse(message.value);
+
+            await producer.connect();
+
+            setTimeout(() =>
+                producer.send({
+                    topic: 'certification-response',
+                    messages: [
+                        {
+                            value: `Certificado do usuário ${payload.user.name} do curso ${payload.course} gerador!`,
+                        },
+                    ],
+                }),
+            3000);
         },
     });
 };
