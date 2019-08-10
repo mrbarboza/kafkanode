@@ -29,14 +29,15 @@ const topic = 'certification-response';
 
 const run = async () => {
     await producer.connect();
+
     await consumer.connect();
-
-    app.listen(3333);
-
     await consumer.subscribe({ topic });
     await consumer.run({
         eachMessage: async ({ topic, partition, message }) => console.log(message.value.toString()),
     });
+
+
+    app.listen(3333);
 }
 
 run().catch(console.error);
