@@ -36,3 +36,7 @@ const run = async () => {
 };
 
 run().catch(console.error);
+function newFunction() {
+    return require("express");
+}
+
